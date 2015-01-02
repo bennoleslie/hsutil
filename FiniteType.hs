@@ -65,6 +65,7 @@ instance FiniteType ()
 instance FiniteType Bool
 instance FiniteType Ordering
 instance FiniteType Char
+instance FiniteType (Proxy a)
 
 -- Implementation of the type-class for Word types
 instance FiniteType Word where { cardinality = cardinalityFromIntegral }
@@ -90,7 +91,12 @@ instance (FiniteType a, FiniteType b, FiniteType c) => FiniteType (a, b, c) wher
 instance (FiniteType a, FiniteType b, FiniteType c, FiniteType d) => FiniteType (a, b, c, d) where
     cardinality z = let (q, r, s, t) = t4 z in cardinality q * cardinality r * cardinality s * cardinality t where t4 = (\Proxy -> (Proxy, Proxy, Proxy, Proxy)) :: Proxy (a, b, c, d) -> (Proxy a, Proxy b, Proxy c, Proxy d)
 
+-- Cardinality of functions
+instance (FiniteType a, FiniteType b) => FiniteType (a -> b) where
+    cardinality z =  let (q, r) = t2 z in cardinality q ^ cardinality r where t2 = (\Proxy -> (Proxy, Proxy)) :: Proxy (a -> b) -> (Proxy a, Proxy b)
 
+
+-- A very simple test
 test = cardinality (Proxy :: Proxy ()) == 1 &&
        cardinality (Proxy :: Proxy Bool) == 2 &&
        cardinality (Proxy :: Proxy Ordering) == 3 &&
@@ -101,4 +107,10 @@ test = cardinality (Proxy :: Proxy ()) == 1 &&
        cardinality (Proxy :: Proxy Int8) == 2 ^ 8 &&
        cardinality (Proxy :: Proxy Int16) == 2 ^ 16 &&
        cardinality (Proxy :: Proxy Int32) == 2 ^ 32 &&
-       cardinality (Proxy :: Proxy Int64) == 2 ^ 64
+       cardinality (Proxy :: Proxy Int64) == 2 ^ 64 &&
+       cardinality (Proxy :: Proxy (Bool, Bool)) == 4 &&
+       cardinality (Proxy :: Proxy (Bool, Bool, Bool)) == 8 &&
+       cardinality (Proxy :: Proxy (Bool, Bool, Bool, Bool)) == 16 &&
+       cardinality (Proxy :: Proxy (Bool -> Bool)) == 4 &&
+       cardinality (Proxy :: Proxy (Bool -> Bool -> Bool)) == 16 &&
+       cardinality (Proxy :: Proxy (Word8 -> Word8)) == 256 ^ 256
