@@ -93,7 +93,7 @@ instance (FiniteType a, FiniteType b, FiniteType c, FiniteType d) => FiniteType 
 
 -- Cardinality of functions
 instance (FiniteType a, FiniteType b) => FiniteType (a -> b) where
-    cardinality z =  let (q, r) = t2 z in cardinality q ^ cardinality r where t2 = (\Proxy -> (Proxy, Proxy)) :: Proxy (a -> b) -> (Proxy a, Proxy b)
+    cardinality z =  let (q, r) = t2 z in cardinality r ^ cardinality q where t2 = (\Proxy -> (Proxy, Proxy)) :: Proxy (a -> b) -> (Proxy a, Proxy b)
 
 
 -- A very simple test
@@ -113,4 +113,6 @@ test = cardinality (Proxy :: Proxy ()) == 1 &&
        cardinality (Proxy :: Proxy (Bool, Bool, Bool, Bool)) == 16 &&
        cardinality (Proxy :: Proxy (Bool -> Bool)) == 4 &&
        cardinality (Proxy :: Proxy (Bool -> Bool -> Bool)) == 16 &&
-       cardinality (Proxy :: Proxy (Word8 -> Word8)) == 256 ^ 256
+       cardinality (Proxy :: Proxy (Word8 -> Word8)) == 256 ^ 256 &&
+       cardinality (Proxy :: Proxy (Bool -> Word8)) == 256 ^ 2 &&
+       cardinality (Proxy :: Proxy (Word8 -> Bool)) == 2 ^ 256
